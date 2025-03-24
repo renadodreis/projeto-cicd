@@ -63,7 +63,7 @@ O pipeline está configurado no GitHub Actions e possui as seguintes etapas:
 
 ## ⚙️ Workflow CI/CD
 
-Veja o workflow completo em [`.github/workflows/ci-cd.yml`](./.github/workflows/ci-cd.yml)
+Veja o workflow completo em [`.github/workflows/ci-cd.yml`](./.github/workflows/main.yml)
 
 ## 🚦 Requisitos para Configuração
 
