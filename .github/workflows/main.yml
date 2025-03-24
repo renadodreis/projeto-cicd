@@ -1,4 +1,4 @@
-name: CI/CD Flask com Docker (Completo)
+name: CI/CD Flask com Docker 
 
 on:
   push:
@@ -71,14 +71,14 @@ jobs:
       url: https://cicd.renatodreis.com.br
 
     steps:
-      - name: Deploy via SSH com Docker Compose (Sua sugestão)
+      - name: Deploy via SSH com Docker Compose 
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/diretorio-do-projeto
+            cd ~/projeto-cicd
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
             docker-compose pull
             docker-compose up -d
