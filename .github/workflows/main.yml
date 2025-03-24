@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: write 
 
 jobs:
   ci:
@@ -35,7 +37,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: flask-app.zip
-          tag_name: release-${{ github.run_number }}
+          tag_name: v${{ github.run_number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
