@@ -1,0 +1,31 @@
+# Ambientes virtuais Python
+venv/
+.env
+
+# Arquivos Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos temporários ou específicos de IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+
+# Banco de dados SQLite (caso utilize)
+*.sqlite3
+
+# Arquivos do pytest
+.pytest_cache/
+
+# Arquivos de build
+build/
+dist/
+*.egg-info/
+
+# Artefatos do projeto
+*.zip
