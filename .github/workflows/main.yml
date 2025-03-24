@@ -1,0 +1,100 @@
+name: CI/CD Flask com Docker (Completo)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Instalar Python e Dependências
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Executar Testes unitários 
+        run: |
+          pytest tests/
+
+      - name: Gerar Artefato 
+        run: |
+          zip -r flask-app.zip . -x '*.git*'
+
+      - name: Publicar Artefato como Release do GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: flask-app.zip
+          tag_name: release-${{ github.run_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docker-build-push:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build e Push da Imagem Docker
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
+
+  cd-deploy:
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://cicd.renatodreis.com.br
+
+    steps:
+      - name: Deploy via SSH com Docker Compose (Sua sugestão)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/diretorio-do-projeto
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
+            docker-compose pull
+            docker-compose up -d
+            docker logout ghcr.io
+
+  notify-failure:
+    needs: [ci, docker-build-push, cd-deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enviar Email caso o Pipeline Falhe 
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{secrets.EMAIL_USERNAME}}
+          password: ${{secrets.EMAIL_PASSWORD}}
+          subject: "[CI/CD Falhou] Projeto Flask"
+          body: "O pipeline CI/CD falhou, verifique imediatamente o GitHub Actions."
+          to: renato@renatodreis.com.br
+          from: github-actions@example.com
