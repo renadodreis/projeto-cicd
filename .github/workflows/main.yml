@@ -22,8 +22,9 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Executar Testes unitários 
+      - name: Executar Testes unitários (pytest)
         run: |
+          export PYTHONPATH=.
           pytest tests/
 
       - name: Gerar Artefato 
